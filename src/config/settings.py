@@ -54,6 +54,8 @@ class BotConfig:
     dry_run_mode: bool
     league_id: str
     team_id: str
+    # Decision weights are optional - defaults provided if not specified
+    # The bot primarily uses betting data (odds API) for optimization
     injury_weight: float
     matchup_weight: float
     recent_performance_weight: float
@@ -84,17 +86,9 @@ class ConfigManager:
         with open(self.config_path, 'r') as file:
             config_data = yaml.safe_load(file)
         
-        # Validate weights sum to 1.0
-        weights = [
-            config_data.get('injury_weight', 0),
-            config_data.get('matchup_weight', 0),
-            config_data.get('recent_performance_weight', 0),
-            config_data.get('projection_weight', 0),
-            config_data.get('weather_weight', 0)
-        ]
-        
-        if abs(sum(weights) - 1.0) > 0.01:
-            raise ValueError("Decision weights must sum to 1.0")
+        # Decision weights are optional - bot primarily uses betting data (odds API)
+        # If weights are provided, they can be used for additional scoring adjustments
+        # Default to 0.0 if not specified (betting data is the primary method)
         
         # Create nested config objects
         yahoo_api_config = YahooAPIConfig(
@@ -131,15 +125,16 @@ class ConfigManager:
             dry_run_mode=config_data['dry_run_mode'],
             league_id=config_data['league_id'],
             team_id=config_data['team_id'],
-            injury_weight=config_data['injury_weight'],
-            matchup_weight=config_data['matchup_weight'],
-            recent_performance_weight=config_data['recent_performance_weight'],
-            projection_weight=config_data['projection_weight'],
-            weather_weight=config_data['weather_weight'],
-            run_daily_at=config_data['run_daily_at'],
-            backup_before_games=config_data['backup_before_games'],
-            waiver_wire_management=config_data['waiver_wire_management'],
-            check_injuries_hourly=config_data['check_injuries_hourly'],
+            # Decision weights are optional - default to 0.0 (betting data is primary method)
+            injury_weight=config_data.get('injury_weight', 0.0),
+            matchup_weight=config_data.get('matchup_weight', 0.0),
+            recent_performance_weight=config_data.get('recent_performance_weight', 0.0),
+            projection_weight=config_data.get('projection_weight', 0.0),
+            weather_weight=config_data.get('weather_weight', 0.0),
+            run_daily_at=config_data.get('run_daily_at', '08:00'),
+            backup_before_games=config_data.get('backup_before_games', True),
+            waiver_wire_management=config_data.get('waiver_wire_management', True),
+            check_injuries_hourly=config_data.get('check_injuries_hourly', True),
             yahoo_api=yahoo_api_config,
             external_apis=external_api_config,
             logging=logging_config,

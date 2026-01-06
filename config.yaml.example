@@ -14,13 +14,6 @@ dry_run_mode: true  # Set to false to make actual changes
 league_id: "your_league_id_here"
 team_id: "your_team_id_here"
 
-# Decision weights (must sum to 1.0)
-injury_weight: 0.3
-matchup_weight: 0.25
-recent_performance_weight: 0.2
-projection_weight: 0.15
-weather_weight: 0.1
-
 # Automation settings
 run_daily_at: "08:00"  # Time to run daily optimization
 backup_before_games: true

@@ -260,12 +260,18 @@ class PlayerEvaluator:
                              injury_adjustment: float, weather_adjustment: float,
                              trend_adjustment: float) -> float:
         """Calculate total evaluation score."""
-        # Apply weights from configuration
+        # Note: This method is primarily for compatibility with main.py
+        # The primary optimization method uses betting data (odds API) via waiver_optimizer.py
+        # Decision weights are optional - if all are 0, just use base projection
         total = base_projection
-        total += matchup_adjustment * self.config.matchup_weight * 10
-        total += injury_adjustment * self.config.injury_weight
-        total += weather_adjustment * self.config.weather_weight * 10
-        total += trend_adjustment * self.config.recent_performance_weight * 10
+        
+        # Only apply weights if they're configured (non-zero)
+        if any([self.config.matchup_weight, self.config.injury_weight, 
+                self.config.weather_weight, self.config.recent_performance_weight]):
+            total += matchup_adjustment * self.config.matchup_weight * 10
+            total += injury_adjustment * self.config.injury_weight
+            total += weather_adjustment * self.config.weather_weight * 10
+            total += trend_adjustment * self.config.recent_performance_weight * 10
         
         return max(0.0, total)  # Ensure non-negative score
     

@@ -1,6 +1,6 @@
 # Fantasy Football Auto-Lineup Bot
 
-A Python application that automatically optimizes and manages your Yahoo Fantasy Football lineup using betting data, player projections, matchups, injuries, and weather conditions.
+A Python application that automatically optimizes and manages your Yahoo Fantasy Football lineup using **real-time betting data** from The Odds API. The bot analyzes game lines, player props, and betting odds to generate optimal lineups.
 
 ## 🚀 Quick Start (5 Minutes)
 
@@ -26,8 +26,17 @@ A Python application that automatically optimizes and manages your Yahoo Fantasy
    - Team ID: Click on your team, URL will be: `https://football.fantasysports.yahoo.com/f1/LEAGUE_ID/TEAM_ID`
    - Or run: `python find_league_ids.py` (after authentication)
 
-5. **Run the bot**
+5. **Get The Odds API Key (Recommended)**
+   - Sign up at [The Odds API](https://the-odds-api.com/)
+   - Free tier: 500 requests/month
+   - Add your API key to `config.yaml` under `external_apis.odds_api_key`
+
+6. **Run the bot**
    ```bash
+   # Primary method: Betting-based optimizer
+   python waiver_optimizer.py
+   
+   # Or use the main bot (also supports betting data)
    python -m src.main --once
    ```
    This will open a browser for Yahoo OAuth authentication on first run.
@@ -37,27 +46,23 @@ A Python application that automatically optimizes and manages your Yahoo Fantasy
 - Python 3.8 or higher
 - Yahoo Fantasy Sports account
 - Yahoo Developer App credentials (free)
-- (Optional) The Odds API key for betting-based optimization (free tier: 500 requests/month)
+- **The Odds API key** for betting-based optimization (free tier: 500 requests/month) - **Recommended**
 
 ## 🎯 Features
 
 ### Core Functionality
-- **Automated Lineup Optimization**: Intelligent lineup decisions based on multiple factors
-- **Betting Data Integration**: Real-time game lines and player props from The Odds API
+- **Betting-Based Optimization**: Primary method uses real-time betting data from The Odds API
+- **Automated Lineup Optimization**: Intelligent lineup decisions based on betting odds and player props
 - **Yahoo Fantasy Integration**: Full API integration for roster management
-- **External Data Integration**: Weather, injuries, projections, and betting lines
-- **Risk Management**: Configurable risk tolerance levels (conservative, medium, aggressive)
-- **Waiver Wire Management**: Automated pickup suggestions and roster changes
+- **Waiver Wire Management**: Automated pickup suggestions based on betting scores
 - **Injury Filtering**: Automatic exclusion of injured/out players from lineups
 
-### Analysis Engine
-- **Player Evaluation**: Multi-factor scoring system
-- **Betting Score Calculation**: Aggregates game lines and player props into a single metric
-- **Matchup Analysis**: Opponent defense rankings and game scripts
-- **Trend Analysis**: Recent performance weighting
-- **Injury Risk Assessment**: Probability-based injury adjustments
-- **Weather Impact**: Game condition adjustments for outdoor games
-- **Week-Specific Optimization**: Date-filtered betting data for accurate weekly projections
+### Betting Data Analysis
+- **Game Lines**: Analyzes spreads and totals to identify high-scoring games
+- **Player Props**: TD odds, rushing/receiving yards, receptions, and QB-specific props
+- **Betting Score Calculation**: Aggregates all betting signals into a single optimization score
+- **Week-Specific Data**: Date-filtered betting data for accurate weekly projections
+- **Position-Specific Analysis**: Different scoring for QB, RB, WR, TE based on relevant props
 
 ### Automation
 - **Scheduled Execution**: Daily/weekly automated runs
@@ -237,13 +242,6 @@ dry_run_mode: false       # Set to true to preview without making changes
 league_id: "your_league_id"
 team_id: "your_team_id"
 
-# Decision weights (must sum to 1.0)
-injury_weight: 0.2
-matchup_weight: 0.3
-recent_performance_weight: 0.25
-projection_weight: 0.2
-weather_weight: 0.05
-
 # Automation settings
 run_daily_at: "08:00"     # Time to run daily optimization
 backup_before_games: true
@@ -259,27 +257,26 @@ waiver_wire_management: true
 ## 🔧 How It Works
 
 ### 1. Data Collection
-The bot gathers data from multiple sources:
-- **Yahoo Fantasy API**: Current roster, player stats, league settings
-- **The Odds API**: Real-time game lines (spreads, totals) and player props (TD odds, yardage lines)
-- **External APIs**: Injury reports, projections (weather data is optional and comes from other sources)
-- **Historical Data**: Past performance and trends
+The bot gathers data from:
+- **Yahoo Fantasy API**: Current roster, player stats, league settings, injury status
+- **The Odds API**: Real-time game lines (spreads, totals) and player props (TD odds, yardage lines, receptions)
+- **Betting Data**: Primary optimization method using Vegas odds and player props
 
-### 2. Player Evaluation
-Each player is scored based on:
-- **Betting Scores**: Aggregated game lines and player props
-- **Base Projections**: Season averages and recent trends
-- **Matchup Strength**: Opponent defensive rankings
-- **Injury Risk**: Probability of playing and effectiveness
-- **Weather Impact**: Game conditions for outdoor games
-- **Recent Performance**: Last 3-4 weeks trend analysis
+### 2. Betting Score Calculation
+Each player receives a betting score based on:
+- **Game Totals**: Higher totals = more scoring opportunities (+3 for ≥50, +1 for ≥45, -2 for ≤40)
+- **Spreads**: Favorite teams get bonus points (+2 for favorites with spread >3 or <-3)
+- **TD Odds**: Players with negative odds (TD favorites) get +3, contenders (<200 odds) get +1
+- **Yardage Props**: Higher rushing/receiving lines = higher scores
+- **Reception Props**: High reception expectations (≥6) get +2 points
+- **QB-Specific Props**: Additional scoring for passing TDs, yards, completions, attempts
 
 ### 3. Lineup Optimization
 The bot optimizes lineups by:
-- **Position Requirements**: Meeting league roster requirements
-- **Risk Tolerance**: Balancing upside vs. consistency
-- **Correlation Analysis**: QB-WR stacking opportunities
-- **Diversification**: Avoiding too many players from same team
+- **Betting Scores**: Selecting players with highest betting scores for each position
+- **Position Requirements**: Meeting league roster requirements (QB, 2RB, 2WR, FLEX, TE, K, DEF)
+- **Injury Filtering**: Automatically excludes injured/non-starting players
+- **Best Available**: Fills all required positions with highest-scoring available players
 
 ### 4. Decision Execution
 - **Dry Run Mode**: Preview changes without submitting
