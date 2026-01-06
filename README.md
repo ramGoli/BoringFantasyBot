@@ -74,8 +74,8 @@ A Python application that automatically optimizes and manages your Yahoo Fantasy
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/yourusername/fantasyFootball.git
-cd fantasyFootball
+git clone https://github.com/ramGoli/BoringFantasyBot.git
+cd BoringFantasyBot
 ```
 
 ### Step 2: Install Dependencies
@@ -287,7 +287,7 @@ The bot optimizes lineups by:
 ## 📁 Project Structure
 
 ```
-fantasyFootball/
+BoringFantasyBot/
 ├── src/
 │   ├── api/
 │   │   ├── yahoo_client.py          # Yahoo API wrapper
