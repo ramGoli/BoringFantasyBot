@@ -1,0 +1,63 @@
+name: Fantasy Football Bot
+on:
+  schedule:
+    # Run every Monday at 8 AM EST (1 PM UTC)
+    - cron: '0 13 * * 1'
+  # Allow manual triggers
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'Week number (optional)'
+        required: false
+        default: ''
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Create config file
+        run: |
+          cp config.yaml.example config.yaml
+          # You'll need to add your actual credentials as GitHub secrets
+          echo "Updating config with secrets..."
+          
+      - name: Run Fantasy Football Bot
+        env:
+          YAHOO_CLIENT_ID: ${{ secrets.YAHOO_CLIENT_ID }}
+          YAHOO_CLIENT_SECRET: ${{ secrets.YAHOO_CLIENT_SECRET }}
+          LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          # Update config with secrets
+          sed -i "s/your_yahoo_client_id/$YAHOO_CLIENT_ID/g" config.yaml
+          sed -i "s/your_yahoo_client_secret/$YAHOO_CLIENT_SECRET/g" config.yaml
+          sed -i "s/your_league_id/$LEAGUE_ID/g" config.yaml
+          sed -i "s/your_team_id/$TEAM_ID/g" config.yaml
+          
+          # Run the bot
+          if [ -n "${{ github.event.inputs.week }}" ]; then
+            python -m src.main --once --week ${{ github.event.inputs.week }}
+          else
+            python -m src.main --once
+          fi
+          
+      - name: Upload logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: bot-logs
+          path: fantasy_bot.log
+

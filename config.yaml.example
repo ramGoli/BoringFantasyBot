@@ -1,0 +1,66 @@
+# Fantasy Football Auto-Lineup Bot Configuration Example
+# Copy this file to config.yaml and update with your settings
+
+# User preferences
+risk_tolerance: "medium"  # conservative, medium, aggressive
+auto_submit: false  # Set to true to automatically submit lineup changes
+notification_email: "your.email@example.com"
+dry_run_mode: true  # Set to false to make actual changes
+
+# League settings - UPDATE THESE WITH YOUR ACTUAL VALUES
+# Find these in your Yahoo Fantasy league URL:
+# League ID: https://football.fantasysports.yahoo.com/f1/LEAGUE_ID
+# Team ID: https://football.fantasysports.yahoo.com/f1/LEAGUE_ID/TEAM_ID
+league_id: "your_league_id_here"
+team_id: "your_team_id_here"
+
+# Decision weights (must sum to 1.0)
+injury_weight: 0.3
+matchup_weight: 0.25
+recent_performance_weight: 0.2
+projection_weight: 0.15
+weather_weight: 0.1
+
+# Automation settings
+run_daily_at: "08:00"  # Time to run daily optimization
+backup_before_games: true
+waiver_wire_management: true
+check_injuries_hourly: true
+
+# API settings - UPDATE THESE WITH YOUR YAHOO DEVELOPER CREDENTIALS
+# Get these from: https://developer.yahoo.com/apps/
+# 1. Create a new app at https://developer.yahoo.com/apps/
+# 2. Set Application Type to "Web Application"
+# 3. Set Redirect URI to: http://localhost:8080/callback
+# 4. Copy your Client ID and Client Secret here
+yahoo_api:
+  client_id: "your_yahoo_client_id_here"
+  client_secret: "your_yahoo_client_secret_here"
+  redirect_uri: "http://localhost:8080/callback"
+
+# External data sources - OPTIONAL
+external_apis:
+  # Weather API key is currently not used - weather data comes from other sources
+  # You can leave this as null or remove it
+  weather_api_key: null  # Not currently used - optional
+  fantasy_pros_api_key: null  # Optional - requires paid subscription
+  numberfire_api_key: null  # Optional - free tier at numberfire.com
+  rotowire_api_key: null  # Optional - requires paid subscription
+  # Get free API key from: https://the-odds-api.com/ (500 requests/month free)
+  # Recommended for betting-based lineup optimization
+  odds_api_key: null  # Optional - for betting lines and player props
+  # Note: ESPN is the PRIMARY source (free, reliable, official data)
+  # CBS Sports and NFL.com are backup sources (also free)
+  
+# Logging configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "fantasy_bot.log"
+  max_size_mb: 10
+  backup_count: 5
+
+# Cache settings
+cache:
+  enabled: true
+  ttl_hours: 24
+  max_size_mb: 100
